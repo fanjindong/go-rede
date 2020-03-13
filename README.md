@@ -20,7 +20,7 @@ import (
 
 func main() {
 	r := rede.NewClient(&rede.Options{
-		Namespaces: "rede",
+		Namespaces: "demo",
 		Addr:       "127.0.0.1:6379",
 		Password:   "",
 		DB:         0,
@@ -34,7 +34,7 @@ func main() {
 
 	got, err := rede.Poll()
 	if err != nil {
-		panic(err)
+        panic(err)
 	}
 	fmt.Println(got)
 	// ["a", "b"]
