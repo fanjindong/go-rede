@@ -33,9 +33,7 @@ func main() {
 	time.Sleep(1 * time.Second)
 
 	got, err := rede.Poll()
-	if err != nil {
-        panic(err)
-	}
+	if err != nil {panic(err)}
 	fmt.Println(got)
 	// ["a", "b"]
 }
