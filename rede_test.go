@@ -86,11 +86,11 @@ func TestClient_Poll(t *testing.T) {
 	}{
 		input: []input{
 			{member: "a", ttl: 1 * time.Second},
-			{member: "b", ttl: 1 * time.Second},
-			{member: "c", ttl: 2 * time.Second},
-			{member: "d", ttl: 3 * time.Second},
+			{member: "b", ttl: 2 * time.Second},
+			{member: "c", ttl: 3 * time.Second},
+			{member: "d", ttl: 4 * time.Second},
 		},
-		sleep: 1 * time.Second,
+		sleep: 2 * time.Second,
 		want:  []string{"a", "b"},
 	}
 	rede.Del(rede.Namespaces)
@@ -101,9 +101,13 @@ func TestClient_Poll(t *testing.T) {
 
 	time.Sleep(tests.sleep)
 
-	gotSlice, err := rede.Poll()
-	assert.NoError(t, err)
-	for i, got := range gotSlice {
+	cur := rede.Poll()
+	i := 0
+	for cur.Next() {
+		got, err := cur.Get()
+		t.Log(got, err)
+		assert.NoError(t, err)
 		assert.Equal(t, tests.want[i], got)
+		i++
 	}
 }

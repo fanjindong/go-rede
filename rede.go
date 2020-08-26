@@ -42,7 +42,7 @@ func NewClient(opt *Options) *Client {
 }
 
 //Push an Member into the Rede for ttl.Seconds() seconds
-func (c *Client) Push(member interface{}, ttl time.Duration) (int64, error) {
+func (c *Client) Push(member string, ttl time.Duration) (int64, error) {
 	z := &redis.Z{
 		Score:  float64(time.Now().Unix()) + ttl.Seconds(),
 		Member: member,
@@ -52,8 +52,12 @@ func (c *Client) Push(member interface{}, ttl time.Duration) (int64, error) {
 }
 
 //Pull the members, remove it from the rede before it expires.
-func (c *Client) Pull(members ...interface{}) (int64, error) {
-	result := c.ZRem(c.Namespaces, members...)
+func (c *Client) Pull(members ...string) (int64, error) {
+	items := make([]interface{}, len(members))
+	for i, member := range members {
+		items[i] = member
+	}
+	result := c.ZRem(c.Namespaces, items...)
 	return result.Result()
 }
 
@@ -76,21 +80,45 @@ func (c *Client) Look(member string) (float64, error) {
 //}
 
 //Pull and return all the expired members in rede.
-func (c *Client) Poll() ([]interface{}, error) {
-	result := make([]interface{}, 0)
-	for {
-		zSlice, err := c.ZPopMin(c.Namespaces, 1).Result()
-		if err != nil {
-			return result, err
-		}
-		if len(zSlice) == 0 {
-			return result, nil
-		}
+// cur := c.Poll()
+// for cur.Next() {
+//     member, err := cur.Get()
+//     fmt.Println(member, err)
+// }
+func (c *Client) Poll() *PollCursor {
+	return NewPollCursor(c)
+}
 
-		if zSlice[0].Score > float64(time.Now().Unix()) {
-			c.ZAdd(c.Namespaces, &zSlice[0])
-			return result, nil
-		}
-		result = append(result, zSlice[0].Member)
+type PollCursor struct {
+	c     *Client
+	value string
+	err   error
+}
+
+func NewPollCursor(c *Client) *PollCursor {
+	return &PollCursor{c: c}
+}
+
+func (pc *PollCursor) Next() bool {
+	if pc.err != nil {
+		return false
 	}
+	zSlice, err := pc.c.ZPopMin(pc.c.Namespaces, 1).Result()
+	if err != nil {
+		pc.value, pc.err = "", err
+		return true
+	}
+	if len(zSlice) == 0 {
+		return false
+	}
+	if zSlice[0].Score > float64(time.Now().Unix()) {
+		pc.c.ZAdd(pc.c.Namespaces, &zSlice[0])
+		return false
+	}
+	pc.value = zSlice[0].Member.(string)
+	return true
+}
+
+func (pc *PollCursor) Get() (string, error) {
+	return pc.value, pc.err
 }
