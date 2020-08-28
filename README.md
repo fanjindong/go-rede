@@ -15,6 +15,7 @@ go get -u github.com/fanjindong/go-rede
 ```
 
 ## Features
+- Rede built on redis
 - Snooze time can be updated
 - Api is concise, such as `Push`, `Poll`
 - Data persistent storage
@@ -27,7 +28,7 @@ go get -u github.com/fanjindong/go-rede
 
 ```go
 func main() {
-	rd := rede.NewClient(&rede.Options{Namespaces: "demo", Addr: "127.0.0.1:6379"})
+	rd := rede.NewClient(&rede.Options{Namespaces: "demo", Addr: "127.0.0.1:6379"}) // Redis.Addr + Namespaces
 
 	rd.Push("a", 1*time.Second)
 	rd.Push("b", 1*time.Second)

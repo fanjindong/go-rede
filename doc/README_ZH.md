@@ -13,6 +13,7 @@ go get -u github.com/fanjindong/go-rede
 ```
 
 ## 特性
+- 基于redis构建
 - 元素的贪睡时间可以被更新
 - Api 简洁
 - 数据持久化存储
@@ -25,7 +26,7 @@ go get -u github.com/fanjindong/go-rede
 
 ```go
 func main() {
-	rd := rede.NewClient(&rede.Options{Namespaces: "demo", Addr: "127.0.0.1:6379"})
+	rd := rede.NewClient(&rede.Options{Namespaces: "demo", Addr: "127.0.0.1:6379"}) // Redis.Addr + Namespaces
 
 	rd.Push("a", 1*time.Second)
 	rd.Push("b", 1*time.Second)
