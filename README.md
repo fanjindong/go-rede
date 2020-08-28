@@ -59,13 +59,9 @@ Pull an element and remove it from rede.
 - Look
 
 View the remaining snooze time of an element.
-查看一个元素的剩余贪睡时间。
 - Ttn
 
-查看rede中最快醒来的那个元素的剩余贪睡时间。
 View the remaining snooze time of the element that wakes up fastest in rede.
-
 - Poll
 
 Poll the elements that have woken up.
-获取已经醒来的元素们。
