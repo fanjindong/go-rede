@@ -41,7 +41,7 @@ func NewClient(opt *Options) *Client {
 	}
 }
 
-//Push an Member into the Rede for ttl.Seconds() seconds
+// Push an Member into the Rede for ttl.Seconds() seconds
 func (c *Client) Push(member string, ttl time.Duration) (int64, error) {
 	z := &redis.Z{
 		Score:  float64(time.Now().Unix()) + ttl.Seconds(),
@@ -51,7 +51,7 @@ func (c *Client) Push(member string, ttl time.Duration) (int64, error) {
 	return result.Result()
 }
 
-//Pull the members, remove it from the rede before it expires.
+// Pull the members, remove it from the rede before it expires.
 func (c *Client) Pull(members ...string) (int64, error) {
 	items := make([]interface{}, len(members))
 	for i, member := range members {
@@ -61,7 +61,7 @@ func (c *Client) Pull(members ...string) (int64, error) {
 	return result.Result()
 }
 
-//Show the ttl corresponding with element and without removing it from the rede.
+// Show the ttl corresponding with element and without removing it from the rede.
 func (c *Client) Look(member string) (float64, error) {
 	result, err := c.ZScore(c.Namespaces, member).Result()
 	if err != nil {
@@ -70,7 +70,7 @@ func (c *Client) Look(member string) (float64, error) {
 	return math.Max(result-float64(time.Now().Unix()), 0), nil
 }
 
-//Show the time left (in seconds) until the next element will expire.
+// Show the time left (in seconds) until the next element will expire.
 func (c *Client) Ttn() (float64, error) {
 	result, err := c.ZRangeWithScores(c.Namespaces, 0, 0).Result()
 	if len(result) == 0 {
@@ -99,6 +99,7 @@ func newPollCursor(c *Client) *pollCursor {
 	return &pollCursor{c: c}
 }
 
+//Next get the next element in the form of iteration
 func (pc *pollCursor) Next() bool {
 	if pc.err != nil {
 		return false
