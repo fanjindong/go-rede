@@ -2,6 +2,8 @@
 
 :rocket: **A Rede is a fancy snooze delayed queue**
 
+![](./doc/SnoozyTheBear_ZH-CN1561515228_1920x1080.jpg)
+
 You can use the `Push` method to set a snooze time for an element. 
 Unless the time comes, the element will not wake up. 
 Get the collection of elements that have woken up through the `poll` method.
