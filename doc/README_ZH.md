@@ -15,6 +15,10 @@ go get -u github.com/fanjindong/go-rede
 - Api 简洁
 - 数据持久化存储
 
+## 需求
+- Go >= 1.10.
+- Redis >= 5.0.
+
 ## 快速开始
 
 ```go

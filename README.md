@@ -17,6 +17,10 @@ go get -u github.com/fanjindong/go-rede
 - Api is concise, such as `Push`, `Poll`
 - Data persistent storage
 
+## Requirements
+- Go >= 1.10.
+- Redis >= 5.0.
+
 ## Quickstart
 
 ```go
