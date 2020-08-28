@@ -1,23 +1,21 @@
-# Rede [中文](./doc/README_ZH.md)
+# go-rede
 
-:rocket:**A Rede is a fancy snooze delayed queue**
+:rocket:**Rede 是一个具有贪睡功能的延时队列**
 
-You can use the `Push` method to set a snooze time for an element. 
-Unless the time comes, the element will not wake up. 
-Get the collection of elements that have woken up through the `poll` method.
+你可以通过 `push` 方法来为一个元素设置贪睡时间，除非时间到达，否则元素不会醒来。
+通过 `poll` 方法来获取已经醒来的元素集。
 
-
-## Installation
+## 安装
 ```shell script
 go get -u github.com/fanjindong/go-rede
 ```
 
-## Features
-- Snooze time can be updated
-- Api is concise, such as `Push`, `Poll`
-- Data persistent storage
+## 特性
+- 元素的贪睡时间可以被更新
+- Api 简洁
+- 数据持久化存储
 
-## Quickstart
+## 快速开始
 
 ```go
 import (
@@ -45,3 +43,4 @@ func main() {
     // "b"
 }
 ```
+

@@ -70,14 +70,14 @@ func (c *Client) Look(member string) (float64, error) {
 	return math.Max(result-float64(time.Now().Unix()), 0), nil
 }
 
-////Show the time left (in seconds) until the next element will expire.
-//func (c *Client) Ttn() (float64, error) {
-//	result, err := c.ZRangeWithScores(c.Namespaces, 0, 0).Result()
-//	if len(result) == 0 {
-//		return -1, nil
-//	}
-//	return math.Max(0, result[0].Score-float64(time.Now().Unix())), err
-//}
+//Show the time left (in seconds) until the next element will expire.
+func (c *Client) Ttn() (float64, error) {
+	result, err := c.ZRangeWithScores(c.Namespaces, 0, 0).Result()
+	if len(result) == 0 {
+		return -1, nil
+	}
+	return math.Max(0, result[0].Score-float64(time.Now().Unix())), err
+}
 
 //Pull and return all the expired members in rede.
 // cur := c.Poll()
@@ -85,21 +85,21 @@ func (c *Client) Look(member string) (float64, error) {
 //     member, err := cur.Get()
 //     fmt.Println(member, err)
 // }
-func (c *Client) Poll() *PollCursor {
-	return NewPollCursor(c)
+func (c *Client) Poll() *pollCursor {
+	return newPollCursor(c)
 }
 
-type PollCursor struct {
+type pollCursor struct {
 	c     *Client
 	value string
 	err   error
 }
 
-func NewPollCursor(c *Client) *PollCursor {
-	return &PollCursor{c: c}
+func newPollCursor(c *Client) *pollCursor {
+	return &pollCursor{c: c}
 }
 
-func (pc *PollCursor) Next() bool {
+func (pc *pollCursor) Next() bool {
 	if pc.err != nil {
 		return false
 	}
@@ -119,6 +119,6 @@ func (pc *PollCursor) Next() bool {
 	return true
 }
 
-func (pc *PollCursor) Get() (string, error) {
+func (pc *pollCursor) Get() (string, error) {
 	return pc.value, pc.err
 }

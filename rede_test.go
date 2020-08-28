@@ -69,10 +69,10 @@ func TestClient_Look(t *testing.T) {
 	}
 }
 
-//func TestClient_Ttn(t *testing.T) {
-//	r, err := rede.Ttn()
-//	t.Log(r, err)
-//}
+func TestClient_Ttn(t *testing.T) {
+	r, err := rede.Ttn()
+	t.Log(r, err)
+}
 
 func TestClient_Poll(t *testing.T) {
 	type input struct {
