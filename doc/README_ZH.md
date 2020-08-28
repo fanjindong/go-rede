@@ -40,8 +40,8 @@ func main() {
 	    fmt.Println(got)
 	}
 	// out:
-	// "a"
-    // "b"
+	// "a" 
+	// "b"
 }
 ```
 
