@@ -1,18 +1,22 @@
 package go_rede
 
 import (
+	"context"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
 	"time"
 )
 
-var rede *Client
+var (
+	ctx  = context.Background()
+	rede *Client
+)
 
 func TestMain(m *testing.M) {
 	rede = NewClient(&Options{
 		Namespaces: "rede",
-		Addr:       "192.168.3.3:6379",
+		Addr:       "ml5pub.tsht3.mc.ops:6379",
 		Password:   "",
 		DB:         0,
 	})
@@ -38,11 +42,11 @@ func TestClient_Push(t *testing.T) {
 	}
 
 	for _, ts := range tests {
-		_, err := rede.Push(ts.input.member, ts.input.ttl)
+		_, err := rede.Push(ctx, ts.input.member, ts.input.ttl)
 		assert.NoError(t, err)
-		got, err := rede.ZScore(rede.Namespaces, ts.input.member).Result()
+		got, err := rede.ZScore(ctx, rede.Namespaces, ts.input.member).Result()
 		assert.NoError(t, err)
-		assert.Equal(t, ts.want, got)
+		assert.Equal(t, int64(ts.want*1e6), int64(got*1e6))
 	}
 }
 
@@ -62,15 +66,15 @@ func TestClient_Look(t *testing.T) {
 		{input: input{member: "e", ttl: 1 * time.Minute}, want: 60},
 	}
 	for _, ts := range tests {
-		_, _ = rede.Push(ts.input.member, ts.input.ttl)
-		got, err := rede.Look(ts.input.member)
+		_, _ = rede.Push(ctx, ts.input.member, ts.input.ttl)
+		got, err := rede.Look(ctx, ts.input.member)
 		assert.NoError(t, err)
 		assert.Equal(t, got, ts.want)
 	}
 }
 
 func TestClient_Ttn(t *testing.T) {
-	r, err := rede.Ttn()
+	r, err := rede.Ttn(ctx)
 	t.Log(r, err)
 }
 
@@ -93,15 +97,15 @@ func TestClient_Poll(t *testing.T) {
 		sleep: 2 * time.Second,
 		want:  []string{"a", "b"},
 	}
-	rede.Del(rede.Namespaces)
+	rede.Del(ctx, rede.Namespaces)
 	for _, ts := range tests.input {
-		_, err := rede.Push(ts.member, ts.ttl)
+		_, err := rede.Push(ctx, ts.member, ts.ttl)
 		assert.NoError(t, err)
 	}
 
 	time.Sleep(tests.sleep)
 
-	cur := rede.Poll()
+	cur := rede.Poll(ctx)
 	i := 0
 	for cur.Next() {
 		got, err := cur.Get()
