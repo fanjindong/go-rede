@@ -1,8 +1,8 @@
-# Rede [中文](./doc/README_ZH.md)
+# Rede [中文](./README_ZH.md)
 
 :rocket: **A Rede is a fancy snooze delayed queue**
 
-![](./doc/SnoozyTheBear_ZH-CN1561515228_1920x1080.jpg)
+![](./images/SnoozyTheBear_ZH-CN1561515228_1920x1080.jpg)
 
 You can use the `Push` method to set a snooze time for an element. 
 Unless the time comes, the element will not wake up. 
@@ -51,17 +51,17 @@ func main() {
 
 - Push
 
-Push an element to rede and set a snooze time.
+Push an element to `rede` and set a snooze time.
 The element will not wake up until the time is up.
 - Pull
 
-Pull an element and remove it from rede.
+Pull an element and remove it from `rede`.
 - Look
 
 View the remaining snooze time of an element.
 - Ttn
 
-View the remaining snooze time of the element that wakes up fastest in rede.
+View the remaining snooze time of the element that wakes up fastest in `rede`.
 - Poll
 
 Poll the elements that have woken up.
