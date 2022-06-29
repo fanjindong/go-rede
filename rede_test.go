@@ -2,8 +2,8 @@ package go_rede
 
 import (
 	"context"
-	"github.com/stretchr/testify/assert"
 	"os"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -16,9 +16,7 @@ var (
 func TestMain(m *testing.M) {
 	rede = NewClient(&Options{
 		Namespaces: "rede",
-		Addr:       "ml5pub.tsht3.mc.ops:6379",
-		Password:   "",
-		DB:         0,
+		Addr:       os.Getenv("REDIS_ADDR"),
 	})
 	exitCode := m.Run()
 	os.Exit(exitCode)
@@ -31,8 +29,9 @@ func TestClient_Push(t *testing.T) {
 		ttl    time.Duration
 	}
 	tests := []struct {
-		input input
-		want  float64
+		input   input
+		want    float64
+		wantErr bool
 	}{
 		{input: input{member: "a", ttl: 1 * time.Second}, want: now + 1},
 		{input: input{member: "b", ttl: 2 * time.Second}, want: now + 2},
@@ -43,10 +42,18 @@ func TestClient_Push(t *testing.T) {
 
 	for _, ts := range tests {
 		_, err := rede.Push(ctx, ts.input.member, ts.input.ttl)
-		assert.NoError(t, err)
+		if (err != nil) != ts.wantErr {
+			t.Errorf("Push() error = %v, wantErr %v", err, ts.wantErr)
+			return
+		}
 		got, err := rede.ZScore(ctx, rede.Namespaces, ts.input.member).Result()
-		assert.NoError(t, err)
-		assert.Equal(t, int64(ts.want*1e6), int64(got*1e6))
+		if (err != nil) != ts.wantErr {
+			t.Errorf("ZScore() error = %v, wantErr %v", err, ts.wantErr)
+			return
+		}
+		if !reflect.DeepEqual(int64(ts.want*1e6), int64(got*1e6)) {
+			t.Errorf("ZScore() got = %v, want %v", int64(got*1e6), int64(ts.want*1e6))
+		}
 	}
 }
 
@@ -56,8 +63,9 @@ func TestClient_Look(t *testing.T) {
 		ttl    time.Duration
 	}
 	tests := []struct {
-		input input
-		want  float64
+		input   input
+		want    float64
+		wantErr bool
 	}{
 		{input: input{member: "a", ttl: 1 * time.Second}, want: 1},
 		{input: input{member: "b", ttl: 2 * time.Second}, want: 2},
@@ -68,8 +76,13 @@ func TestClient_Look(t *testing.T) {
 	for _, ts := range tests {
 		_, _ = rede.Push(ctx, ts.input.member, ts.input.ttl)
 		got, err := rede.Look(ctx, ts.input.member)
-		assert.NoError(t, err)
-		assert.Equal(t, got, ts.want)
+		if (err != nil) != ts.wantErr {
+			t.Errorf("Look() error = %v, wantErr %v", err, ts.wantErr)
+			return
+		}
+		if !reflect.DeepEqual(got, ts.want) {
+			t.Errorf("ZScore() got = %v, want %v", got, ts.want)
+		}
 	}
 }
 
@@ -84,9 +97,10 @@ func TestClient_Poll(t *testing.T) {
 		ttl    time.Duration
 	}
 	tests := struct {
-		input []input
-		sleep time.Duration
-		want  []string
+		input   []input
+		sleep   time.Duration
+		want    []string
+		wantErr bool
 	}{
 		input: []input{
 			{member: "a", ttl: 1 * time.Second},
@@ -99,8 +113,7 @@ func TestClient_Poll(t *testing.T) {
 	}
 	rede.Del(ctx, rede.Namespaces)
 	for _, ts := range tests.input {
-		_, err := rede.Push(ctx, ts.member, ts.ttl)
-		assert.NoError(t, err)
+		_, _ = rede.Push(ctx, ts.member, ts.ttl)
 	}
 
 	time.Sleep(tests.sleep)
@@ -110,8 +123,13 @@ func TestClient_Poll(t *testing.T) {
 	for cur.Next() {
 		got, err := cur.Get()
 		t.Log(got, err)
-		assert.NoError(t, err)
-		assert.Equal(t, tests.want[i], got)
+		if (err != nil) != tests.wantErr {
+			t.Errorf("Poll() error = %v, wantErr %v", err, tests.wantErr)
+			return
+		}
+		if !reflect.DeepEqual(tests.want[i], got) {
+			t.Errorf("Next() got = %v, want %v", got, tests.want[i])
+		}
 		i++
 	}
 }
